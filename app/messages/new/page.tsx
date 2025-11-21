@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 
-export default function NewMessagePage() {
+function NewMessageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { status } = useSession()
@@ -30,5 +30,17 @@ export default function NewMessagePage() {
     <div className="min-h-screen flex items-center justify-center">
       <p className="text-gray-600">Redirecting...</p>
     </div>
+  )
+}
+
+export default function NewMessagePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-600">Loading...</p>
+      </div>
+    }>
+      <NewMessageContent />
+    </Suspense>
   )
 }

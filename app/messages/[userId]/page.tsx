@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { Suspense, useState, useEffect, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useParams, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
-export default function ConversationPage() {
+function ConversationContent() {
   const router = useRouter()
   const params = useParams()
   const searchParams = useSearchParams()
@@ -210,5 +210,17 @@ export default function ConversationPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function ConversationPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-600">Loading...</p>
+      </div>
+    }>
+      <ConversationContent />
+    </Suspense>
   )
 }
