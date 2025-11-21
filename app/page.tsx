@@ -53,6 +53,8 @@ export default function Home() {
     if (!location) return
 
     async function fetchItems() {
+      if (!location) return // Additional null check for TypeScript
+
       setLoading(true)
       try {
         const params = new URLSearchParams({
