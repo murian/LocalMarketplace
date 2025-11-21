@@ -30,7 +30,10 @@ export default function SignUp() {
       const data = await response.json()
 
       if (!response.ok) {
-        setError(data.error || 'Something went wrong')
+        const errorMsg = data.message
+          ? `${data.error}: ${data.message}`
+          : data.error || 'Something went wrong'
+        setError(errorMsg)
         setLoading(false)
         return
       }

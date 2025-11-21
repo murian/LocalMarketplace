@@ -56,8 +56,14 @@ export async function POST(req: Request) {
       )
     }
 
+    // Log the actual error for debugging
+    console.error('Signup error:', error)
+
     return NextResponse.json(
-      { error: 'Something went wrong' },
+      {
+        error: 'Something went wrong',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     )
   }
