@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  name          String
+  latitude      Float?
+  longitude     Float?
+  bio           String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  items         Item[]
+  sentMessages     Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+  givenReviews     Review[]  @relation("GivenReviews")
+  receivedReviews  Review[]  @relation("ReceivedReviews")
+
+  @@index([latitude, longitude])
+}
+
+model Item {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  price       Float?   // null means free/donation
+  condition   String   // new, like-new, good, fair, poor
+  category    String
+  images      String[] // Array of image URLs
+  latitude    Float
+  longitude   Float
+  userId      String
+  status      String   @default("available") // available, sold, donated, removed
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages    Message[]
+
+  @@index([latitude, longitude])
+  @@index([category])
+  @@index([status])
+}
+
+model Message {
+  id         String   @id @default(cuid())
+  content    String
+  senderId   String
+  receiverId String
+  itemId     String?
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  sender     User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  item       Item?    @relation(fields: [itemId], references: [id], onDelete: SetNull)
+
+  @@index([senderId, receiverId])
+  @@index([itemId])
+}
+
+model Review {
+  id             String   @id @default(cuid())
+  rating         Int      // 1-5 stars
+  comment        String?
+  reviewerId     String
+  reviewedUserId String
+  createdAt      DateTime @default(now())
+
+  reviewer       User     @relation("GivenReviews", fields: [reviewerId], references: [id], onDelete: Cascade)
+  reviewedUser   User     @relation("ReceivedReviews", fields: [reviewedUserId], references: [id], onDelete: Cascade)
+
+  @@index([reviewedUserId])
+  @@unique([reviewerId, reviewedUserId])
+}
